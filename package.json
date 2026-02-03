@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
     "dev:next": "cd renderer && next dev",
-    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "dev:electron": "tsc -p tsconfig.json && wait-on http://localhost:3000 && electron .",
     "build": "npm run build:next && npm run build:electron",
     "build:next": "cd renderer && next build",
     "build:electron": "tsc -p tsconfig.json",
@@ -26,6 +26,8 @@
   "dependencies": {
     "better-sqlite3": "^9.2.2",
     "electron-is-dev": "^2.0.0",
+    "jspdf": "^4.1.0",
+    "lucide-react": "^0.563.0",
     "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

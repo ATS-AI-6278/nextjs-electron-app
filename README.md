@@ -1,8 +1,8 @@
-# Electron Notes App
+# Electron Diary App
 
-A cross-platform desktop note-taking application built with Electron, Next.js, and SQLite.
+A cross-platform desktop diary application built with Electron, Next.js, and SQLite.
 
-## 🏗️ Architecture
+## Architecture
 
 - **Frontend**: Next.js (React) with Tailwind CSS - Static exported SPA
 - **Backend**: Electron Main Process with SQLite database
@@ -10,70 +10,63 @@ A cross-platform desktop note-taking application built with Electron, Next.js, a
 - **IPC**: Secure communication via contextBridge in preload script
 - **Packaging**: electron-builder for Windows/macOS/Linux
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
+- npm (Node Package Manager)
 
 ### Installation
 
+To set up the project, install dependencies. This command includes a postinstall script that automatically downloads and compiles the native modules (like SQLite) for Electron:
+
 ```bash
-# Install dependencies (includes postinstall script for native modules)
 npm install
 ```
 
 ### Development
 
+To start the application in development mode:
+
 ```bash
-# Start development server (Next.js + Electron)
 npm run dev
 ```
 
 This will:
-1. Start Next.js dev server on `localhost:3000`
-2. Launch Electron app that connects to the dev server
+1. Compile TypeScript files for the main process.
+2. Start the Next.js development server on `localhost:3000`.
+3. Launch the Electron application window.
 
 ### Building for Production
 
+To create a distributable installer for your platform:
+
 ```bash
-# Build Next.js static export + compile TypeScript
-npm run build
-
-# Package for current platform
 npm run dist
-
-# Or package without creating installer (faster for testing)
-npm run pack
 ```
 
-## 📁 Project Structure
+Artifacts (installers) will be created in the `dist/` directory.
+
+## Project Structure
 
 ```
 electron-app/
 ├── main/
-│   ├── background.ts    # Electron main process + SQLite
-│   └── preload.ts       # contextBridge API
+│   ├── background.ts    # Electron main process + SQLite logic
+│   └── preload.ts       # Secure IPC Bridge
 ├── renderer/
 │   ├── pages/
-│   │   ├── _app.tsx     # Next.js app wrapper
-│   │   └── index.tsx    # Main UI
-│   ├── styles/
-│   │   └── globals.css  # Tailwind styles
+│   │   └── index.tsx    # Diary Timeline & Entry Form
 │   ├── types/
-│   │   └── electron.d.ts # TypeScript definitions
-│   ├── next.config.js   # Static export config
-│   └── tsconfig.json
-├── app/                 # Next.js build output (git-ignored)
-├── dist/                # Electron packaged apps (git-ignored)
-├── package.json
-└── tsconfig.json
+│   │   └── electron.d.ts # TypeScript interfaces
+├── package.json         # Scripts and dependencies
+└── tsconfig.json        # TypeScript configuration
 ```
 
-## 💾 Database
+## Database
 
-SQLite database is stored at:
+The SQLite database (`notes.db`) is stored in your operating system's application data folder:
 
 - **Windows**: `C:\Users\<username>\AppData\Roaming\electron-notes-app\notes.db`
 - **macOS**: `~/Library/Application Support/electron-notes-app/notes.db`
@@ -81,76 +74,43 @@ SQLite database is stored at:
 
 ### Schema
 
-```sql
-CREATE TABLE notes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  content TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-```
+Table: `diary_entries`
 
-## 🔒 Security
+| Column      | Type    | Description                  |
+| ----------- | ------- | ---------------------------- |
+| id          | INTEGER | Primary Key (Auto-increment) |
+| title       | TEXT    | Entry Title                  |
+| content     | TEXT    | Main entry text              |
+| mood        | TEXT    | Mood (happy, sad, etc.)      |
+| entry_date  | TEXT    | Date of entry (YYYY-MM-DD)   |
+| created_at  | TEXT    | ISO Timestamp of creation    |
 
-- **No Node.js in Renderer**: `nodeIntegration: false`
-- **Context Isolation**: `contextIsolation: true`
-- **Preload Script**: Safe API exposed via `contextBridge`
-- **SQLite in Main Process Only**: Renderer communicates via IPC
+## Features
 
-## ⚙️ Available Scripts
+- Create diary entries with Title, Date, and Mood
+- Vertical Timeline View (Newest entries first)
+- Export entire diary to PDF
+- Delete entries
+- Persistent SQLite storage
+- Dark Mode UI
+- Cross-platform support
 
-| Command         | Description                    |
-| --------------- | ------------------------------ |
-| `npm run dev`   | Start development mode         |
-| `npm run build` | Build for production           |
-| `npm run pack`  | Package without installer      |
-| `npm run dist`  | Create distributable installer |
+## Dependencies
 
-## 🎨 Features
+- **electron**: Desktop runtime
+- **next**: React framework for frontend
+- **better-sqlite3**: Fast, native SQLite3 driver
+- **jspdf**: Client-side PDF generation
+- **lucide-react**: Icon set
 
-- ✅ Create notes with auto-save timestamp
-- ✅ View all notes in chronological order
-- ✅ Delete notes
-- ✅ Dark theme UI with Tailwind CSS
-- ✅ Keyboard shortcuts (Cmd/Ctrl + Enter to save)
-- ✅ Persistent SQLite storage
-- ✅ Cross-platform (Windows, macOS, Linux)
-
-## 📦 Dependencies
-
-### Production
-- `electron` - Desktop app framework
-- `next` - React framework
-- `react` & `react-dom` - UI library
-- `better-sqlite3` - Native SQLite driver
-- `electron-is-dev` - Detect dev/prod mode
-
-### Development
-- `electron-builder` - App packaging
-- `typescript` - Type safety
-- `tailwindcss` - Styling
-- `concurrently` - Run multiple commands
-- `wait-on` - Wait for dev server
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Native Module Errors
 
-If you see errors about `better-sqlite3` not loading:
+If you encounter errors related to `better-sqlite3` or `NODE_MODULE_VERSION` mismatch, simply run:
 
 ```bash
 npm run postinstall
 ```
 
-This recompiles native modules for your Electron version.
-
-### Development Server Not Starting
-
-Make sure port 3000 is available, or change the port in `package.json`:
-
-```json
-"dev:next": "cd renderer && next dev -p 3001"
-```
-
-## 📄 License
-
-MIT
+This ensures that native dependencies are rebuilt specifically for the Electron version you are using.
